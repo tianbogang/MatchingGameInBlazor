@@ -1,0 +1,30 @@
+﻿@page "/gameover"
+
+@inject IGameService service
+@inject NavigationManager NavigationManager
+
+<div class="container">
+    <h1 class="center-text">Game Over</h1>
+    <h5 class="center-text">Time used: @timeUsed</h5>
+    <div class="d-flex justify-content-center">
+        <button class="btn-lg" @onclick="() => PlayAgain()">Play Again</button>
+    </div>
+</div>
+
+@code {
+    private string timeUsed = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Game game = service.CurrentGame;
+        if(game != null)
+        {
+            timeUsed = game.TimeUsed.ToString(@"hh\:mm\:ss");
+        }
+    }
+
+    private void PlayAgain()
+    {
+        NavigationManager.NavigateTo($"/");
+    }
+}

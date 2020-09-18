@@ -1,0 +1,194 @@
+﻿@page "/playgame"
+@page "/playgame/{Difficulty:int}"
+
+@inject IGameService service
+@inject NavigationManager NavigationManager
+
+@implements IDisposable
+
+<div class="container">
+
+    <div class="d-flex justify-content-around">
+        <span class="@playingClass" style="line-height:38px"></span>
+        <h3>Play Game</h3>
+        <StopWatch @ref="stopWatch" />
+    </div>
+
+    @if (game?.CardSet1 == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <div class="d-flex flex-wrap card-set">
+            @foreach (var card in game.CardSet1)
+            {
+                @switch (card.State)
+                {
+                    case CardState.Closed:
+                        <button class="btn card card-closed" @onclick="() => OnClickCard1(card)"></button>
+                        break;
+
+                    case CardState.OpenGreen:
+                        <button class="btn card card-green" @onclick="() => OnClickCard1(card)">@card.Point</button>
+                        break;
+
+                    case CardState.OpenRed:
+                        <div class="btn card card-red">@card.Point</div>
+                        break;
+
+                    case CardState.Hidden:
+                        <div class="card card-hidden"></div>
+                        break;
+                }
+            }
+        </div>
+    }
+
+    <p />
+
+    @if (game?.CardSet2 == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <div class="d-flex flex-wrap card-set">
+            @foreach (var card in game.CardSet2)
+            {
+                @switch (card.State)
+                {
+                    case CardState.Closed:
+                        <button class="btn card card-closed" @onclick="() => OnClickCard2(card)"></button>
+                        break;
+
+                    case CardState.OpenGreen:
+                        <button class="btn card card-green" @onclick="() => OnClickCard2(card)">@card.Point</button>
+                        break;
+
+                    case CardState.OpenRed:
+                        <div class="btn card card-red">@card.Point</div>
+                        break;
+
+                    case CardState.Hidden:
+                        <div class="card card-hidden"></div>
+                        break;
+                }
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Difficulty { get; set; } = (int)GameDifficulty.Medium;
+
+    private StopWatch stopWatch;
+
+    private Game game;
+
+    const string defaultSymbol = "oi oi-person text-success";
+    private string playingClass = defaultSymbol;
+
+    protected override async Task OnInitializedAsync()
+    {
+        game = service.CurrentGame;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            stopWatch.Start();
+        }
+    }
+
+    private void OnClickCard1(Card clickedCard)
+    {
+        ToggleStateInSameCardset(game.CardSet1, clickedCard);
+        UpdateStateBetweenCardset(game.CardSet2, clickedCard);
+        StateHasChanged();
+    }
+
+    private void OnClickCard2(Card clickedCard)
+    {
+        ToggleStateInSameCardset(game.CardSet2, clickedCard);
+        UpdateStateBetweenCardset(game.CardSet1, clickedCard);
+        StateHasChanged();
+    }
+
+    private void ToggleStateInSameCardset(List<Card> cardSet, Card card)
+    {
+        Card selectedCard = cardSet.FirstOrDefault(c => c.State == CardState.OpenGreen);
+        if (selectedCard != null)
+        {
+            selectedCard.State = CardState.Closed;
+            card.State = CardState.OpenGreen;
+        }
+    }
+
+    private void UpdateStateBetweenCardset(List<Card> cardSet, Card card)
+    {
+        Card selectedCard = cardSet.FirstOrDefault(c => c.State == CardState.OpenGreen);
+        if (selectedCard != null)
+        {
+            System.Timers.Timer t;
+
+            if (card.Point == selectedCard.Point)
+            {
+                card.State = CardState.OpenGreen;
+                playingClass = "oi oi-thumb-up text-success";
+                StateHasChanged();
+
+                t = new System.Timers.Timer(1000);
+                t.Elapsed += (sender, args) =>
+                {
+                    InvokeAsync(() =>
+                    {
+                        card.State = CardState.Hidden;
+                        selectedCard.State = CardState.Hidden;
+                        playingClass = defaultSymbol;
+                        StateHasChanged();
+
+                        if (game.NoMoreCard)
+                        {
+                            stopWatch.Stop();
+                            game.TimeUsed = stopWatch.TimeElapsed;
+                            NavigationManager.NavigateTo($"/gameover");
+                        }
+                    });
+                };
+                t.AutoReset = false;
+                t.Start();
+            }
+            else
+            {
+                card.State = CardState.OpenRed;
+                playingClass = "oi oi-thumb-down";
+                StateHasChanged();
+
+                t = new System.Timers.Timer(3000);
+                t.Elapsed += (sender, args) =>
+                {
+                    InvokeAsync(() =>
+                    {
+                        card.State = CardState.Closed;
+                        playingClass = defaultSymbol;
+                        StateHasChanged();
+                    });
+                };
+                t.AutoReset = false;
+                t.Start();
+            }
+        }
+        else
+        {
+            card.State = CardState.OpenGreen;
+        }
+    }
+
+    public void Dispose()
+    {
+        stopWatch?.Stop();
+    }
+}

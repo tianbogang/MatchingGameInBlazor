@@ -1,0 +1,35 @@
+﻿@implements IDisposable
+
+<h5>@TimeElapsed.ToString(@"hh\:mm\:ss")</h5>
+
+@code {
+    public TimeSpan TimeElapsed { get; private set; }
+
+    private System.Threading.Timer timer;
+    private long tick = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    public void Start()
+    {
+        timer = new System.Threading.Timer(async _ =>
+        {
+            tick++;
+            TimeElapsed = TimeSpan.FromSeconds(tick);
+            await InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+    }
+
+    public void Stop()
+    {
+        timer?.Dispose();
+        timer = null;
+    }
+
+    public void Dispose()
+    {
+        Stop();
+    }
+}

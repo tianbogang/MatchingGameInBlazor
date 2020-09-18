@@ -1,0 +1,30 @@
+﻿@page "/"
+
+@inject IGameService service
+@inject NavigationManager NavigationManager
+
+<div class="container">
+    <div class="d-flex justify-content-center">
+        <img class="mr-4" src="images/Logo.png" width="48" height="48" />
+        <h1>Matching Game</h1>
+    </div>
+
+    <h5 class="center-text">Please select game difficulty</h5>
+
+    <div class="d-flex justify-content-center">
+        <button class="btn-lg mx-6" @onclick="() => SelectGame(GameDifficulty.Easy)">Easy</button>
+        <button class="btn-lg mx-6" @onclick="() => SelectGame(GameDifficulty.Medium)">Medium</button>
+        <button class="btn-lg mx-6" @onclick="() => SelectGame(GameDifficulty.Hard)">Hard</button>
+    </div>
+</div>
+
+@code {
+
+    private void SelectGame(GameDifficulty setting)
+    {
+        int difficulty = (int)setting;
+        service.CreateNewGame(difficulty);
+
+        NavigationManager.NavigateTo($"/playgame/{difficulty}");
+    }
+}
