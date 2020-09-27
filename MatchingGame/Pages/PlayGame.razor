@@ -9,7 +9,7 @@
 <div class="container">
 
     <div class="d-flex justify-content-around">
-        <span class="@playingClass" style="line-height:38px"></span>
+        <span class="@PlayingClass" style="line-height:38px"></span>
         <h3>Play Game</h3>
         <StopWatch @ref="stopWatch" />
     </div>
@@ -87,12 +87,12 @@
 
     private Game game;
 
-    const string defaultSymbol = "oi oi-person text-success";
-    private string playingClass = defaultSymbol;
+    public string PlayingClass => ( game.MatchedCards ? "oi oi-thumb-up text-success" : ( game.AnyRedCard ? "oi oi-thumb-down" : "oi oi-person text-success" ) );
 
     protected override async Task OnInitializedAsync()
     {
         game = service.CurrentGame;
+        game.CardStateChanged += OnCardStateChanged;
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -103,92 +103,47 @@
         }
     }
 
-    private void OnClickCard1(Card clickedCard)
+    private void OnCardStateChanged()
     {
-        ToggleStateInSameCardset(game.CardSet1, clickedCard);
-        UpdateStateBetweenCardset(game.CardSet2, clickedCard);
-        StateHasChanged();
-    }
-
-    private void OnClickCard2(Card clickedCard)
-    {
-        ToggleStateInSameCardset(game.CardSet2, clickedCard);
-        UpdateStateBetweenCardset(game.CardSet1, clickedCard);
-        StateHasChanged();
-    }
-
-    private void ToggleStateInSameCardset(List<Card> cardSet, Card card)
-    {
-        Card selectedCard = cardSet.FirstOrDefault(c => c.State == CardState.OpenGreen);
-        if (selectedCard != null)
+        InvokeAsync(() =>
         {
-            selectedCard.State = CardState.Closed;
-            card.State = CardState.OpenGreen;
-        }
+            StateHasChanged();
+        });
     }
 
-    private void UpdateStateBetweenCardset(List<Card> cardSet, Card card)
+    private async void OnClickCard1(Card clickedCard)
     {
-        Card selectedCard = cardSet.FirstOrDefault(c => c.State == CardState.OpenGreen);
-        if (selectedCard != null)
-        {
-            System.Timers.Timer t;
+        await game.UpdateCardFromUno(clickedCard.Point);
+        CheckAndStop();
+    }
 
-            if (card.Point == selectedCard.Point)
+    private async void OnClickCard2(Card clickedCard)
+    {
+        await game.UpdateCardFromDue(clickedCard.Point);
+        CheckAndStop();
+    }
+
+    private void CheckAndStop()
+    {
+        var t = new System.Timers.Timer(1000);
+        t.Elapsed += (sender, args) =>
+        {
+            if(game.RemainCards == 0)
             {
-                card.State = CardState.OpenGreen;
-                playingClass = "oi oi-thumb-up text-success";
-                StateHasChanged();
-
-                t = new System.Timers.Timer(1000);
-                t.Elapsed += (sender, args) =>
-                {
-                    InvokeAsync(() =>
-                    {
-                        card.State = CardState.Hidden;
-                        selectedCard.State = CardState.Hidden;
-                        playingClass = defaultSymbol;
-                        StateHasChanged();
-
-                        if (game.NoMoreCard)
-                        {
-                            stopWatch.Stop();
-                            game.TimeUsed = stopWatch.TimeElapsed;
-                            NavigationManager.NavigateTo($"/gameover");
-                        }
-                    });
-                };
-                t.AutoReset = false;
-                t.Start();
+                stopWatch.Stop();
+                game.TimeUsed = stopWatch.TimeElapsed;
+                NavigationManager.NavigateTo($"/gameover");
             }
-            else
-            {
-                card.State = CardState.OpenRed;
-                playingClass = "oi oi-thumb-down";
-                StateHasChanged();
-
-                t = new System.Timers.Timer(3000);
-                t.Elapsed += (sender, args) =>
-                {
-                    InvokeAsync(() =>
-                    {
-                        card.State = CardState.Closed;
-                        playingClass = defaultSymbol;
-                        StateHasChanged();
-                    });
-                };
-                t.AutoReset = false;
-                t.Start();
-            }
-        }
-        else
-        {
-            card.State = CardState.OpenGreen;
-        }
+        };
+        t.AutoReset = false;
+        t.Start();
     }
 
     public void Dispose()
     {
+        if(game != null)
+            game.CardStateChanged -= OnCardStateChanged;
+
         stopWatch?.Stop();
     }
 }

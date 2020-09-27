@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MatchingGame.Core
 {
@@ -45,7 +46,78 @@ namespace MatchingGame.Core
             }
         }
 
-        public bool NoMoreCard => ( CardSet1.All(c => c.State == CardState.Hidden) && CardSet2.All(c => c.State == CardState.Hidden) );
+        public int RemainCards => ( CardSet1.Count(c => c.State != CardState.Hidden) + CardSet2.Count(c => c.State != CardState.Hidden) );
+
+        public bool MatchedCards => (CardSet1.Any(c => c.State == CardState.OpenGreen) && CardSet2.Any(c => c.State == CardState.OpenGreen));
+
+        public bool AnyRedCard => (CardSet1.Any(c => c.State == CardState.OpenRed) || CardSet2.Any(c => c.State == CardState.OpenRed));
+
+        public event Action CardStateChanged = delegate { };
+
+        public async Task UpdateCardFromUno(int point)
+        {
+            Card card = CardSet1.FirstOrDefault(c => c.Point == point);
+            if (card != null)
+            {
+                ToggleStateInSameCardset(CardSet1, card);
+                await UpdateStateBetweenCardset(CardSet2, card);
+            }
+        }
+
+        public async Task UpdateCardFromDue(int point)
+        {
+            Card card = CardSet2.FirstOrDefault(c => c.Point == point);
+            if (card != null)
+            {
+                ToggleStateInSameCardset(CardSet2, card);
+                await UpdateStateBetweenCardset(CardSet1, card);
+            }
+        }
+
+        private void ToggleStateInSameCardset(List<Card> cardSet, Card card)
+        {
+            Card selectedCard = cardSet.FirstOrDefault(c => c.State == CardState.OpenGreen);
+            if (selectedCard != null)
+            {
+                selectedCard.State = CardState.Closed;
+                card.State = CardState.OpenGreen;
+                CardStateChanged();
+            }
+        }
+
+        private async Task UpdateStateBetweenCardset(List<Card> cardSet, Card card)
+        {
+            Card selectedCard = cardSet.FirstOrDefault(c => c.State == CardState.OpenGreen);
+            if (selectedCard != null)
+            {
+                if (card.Point == selectedCard.Point)
+                {
+                    card.State = CardState.OpenGreen;
+                    CardStateChanged();
+
+                    await Task.Delay(1000);
+
+                    card.State = CardState.Hidden;
+                    selectedCard.State = CardState.Hidden;
+                }
+                else
+                {
+                    card.State = CardState.OpenRed;
+                    CardStateChanged();
+
+                    await Task.Delay(3000);
+
+                    card.State = CardState.Closed;
+                }
+            }
+            else
+            {
+                card.State = CardState.OpenGreen;
+            }
+
+            CardStateChanged();
+        }
+
 
         public void Dispose()
         {
