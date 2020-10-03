@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace MatchingGame.Core
 {
-    public class Game : IDisposable
+    public sealed class Game : IDisposable
     {
         public Guid Id { get; }
         public int Difficulty { get; } = (int)GameDifficulty.Medium;
