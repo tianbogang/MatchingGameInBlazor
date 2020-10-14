@@ -26,20 +26,15 @@ namespace MatchingGame.Core
         private void Init()
         {
             int count = Difficulty;
-            int[] pts = new int[count];
-            for (int n = 0; n < count; n++)
-            {
-                pts[n] = n + 1;
-            }
-
             var rng = new Random();
-            rng.Shuffle(pts);
+
+            int[] pts = rng.GenerateRandomNumbers(count);
             for (int n = 0; n < count; n++)
             {
                 CardSet1.Add(new Card(pts[n], CardState.Closed));
             }
 
-            rng.Shuffle(pts);
+            pts = rng.GenerateRandomNumbers(count);
             for (int n = 0; n < count; n++)
             {
                 CardSet2.Add(new Card(pts[n], CardState.Closed));

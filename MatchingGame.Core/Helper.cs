@@ -1,20 +1,13 @@
 ﻿using System;
+using System.Linq;
 
 namespace MatchingGame.Core
 {
     public static class Helper
     {
-        // Thanks to Matt Howells, https://stackoverflow.com/questions/108819/best-way-to-randomize-an-array-with-net
-        public static void Shuffle<T>(this Random rng, T[] array)
+        public static int[] GenerateRandomNumbers(this Random rn, int N)
         {
-            int n = array.Length;
-            while (n > 1)
-            {
-                int k = rng.Next(n--);
-                T temp = array[n];
-                array[n] = array[k];
-                array[k] = temp;
-            }
+            return Enumerable.Range(0, N).OrderBy(_ => rn.Next()).ToArray();
         }
     }
 }
