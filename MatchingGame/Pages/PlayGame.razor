@@ -6,6 +6,8 @@
 
 @implements IDisposable
 
+<link href="css/Card.css" rel="stylesheet" />
+
 <div class="container">
 
     <div class="d-flex justify-content-around">
@@ -26,15 +28,15 @@
                 @switch (card.State)
                 {
                     case CardState.Closed:
-                        <button class="btn card card-closed" @onclick="() => OnClickCard1(card)"></button>
+                        <button class="card card-closed" @onclick="() => OnClickCard1(card)"></button>
                         break;
 
                     case CardState.OpenGreen:
-                        <div class="btn card card-green">@card.Point</div>
+                        <div class="card card-green">@card.Point</div>
                         break;
 
                     case CardState.OpenRed:
-                        <div class="btn card card-red">@card.Point</div>
+                        <div class="card card-red">@card.Point</div>
                         break;
 
                     case CardState.Hidden:
@@ -59,15 +61,15 @@
                 @switch (card.State)
                 {
                     case CardState.Closed:
-                        <button class="btn card card-closed" @onclick="() => OnClickCard2(card)"></button>
+                        <button class="card card-closed" @onclick="() => OnClickCard2(card)"></button>
                         break;
 
                     case CardState.OpenGreen:
-                        <div class="btn card card-green">@card.Point</div>
+                        <div class="card card-green">@card.Point</div>
                         break;
 
                     case CardState.OpenRed:
-                        <div class="btn card card-red">@card.Point</div>
+                        <div class="card card-red">@card.Point</div>
                         break;
 
                     case CardState.Hidden:
