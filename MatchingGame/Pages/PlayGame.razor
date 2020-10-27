@@ -28,7 +28,7 @@
                 @switch (card.State)
                 {
                     case CardState.Closed:
-                        <button class="card card-closed" @onclick="() => OnClickCard1(card)"></button>
+                        <div class="card card-closed" @onclick="() => OnClickCard1(card)"></div>
                         break;
 
                     case CardState.OpenGreen:
@@ -61,7 +61,7 @@
                 @switch (card.State)
                 {
                     case CardState.Closed:
-                        <button class="card card-closed" @onclick="() => OnClickCard2(card)"></button>
+                        <div class="card card-closed" @onclick="() => OnClickCard2(card)"></div>
                         break;
 
                     case CardState.OpenGreen:
