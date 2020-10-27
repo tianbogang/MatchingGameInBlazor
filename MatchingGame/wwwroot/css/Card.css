@@ -48,15 +48,23 @@
     border-radius: 8px;
 }
 
-    .card:focus, .card:active {
-        outline: none !important;
-        border: 0px solid;
-    }
+.cardBtn {
+    width: 72px;
+    height: 92px;
+    background-color: #458ca9;
+    border: 0px solid;
+    border-radius: 6px;
+    outline: none !important;
+}
+
+.card:focus, .card:active {
+    outline: none !important;
+    border: 0px solid;
+}
 
 .card-closed {
-    border: 4px solid white;
-    border-radius: 8px;
-    background-color: #458ca9;
+    border: 0px solid;
+    background-color: white;
 }
 
 .card-green {

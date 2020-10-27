@@ -1,0 +1,81 @@
+﻿@keyframes spin-to-green {
+    from {
+        color: black;
+        background-color: white;
+        transform: rotateY(180deg);
+    }
+
+    to {
+        transform: rotateY(0deg);
+        color: green;
+        background-color: white;
+    }
+}
+
+@keyframes spin-to-red {
+    from {
+        transform: rotateY(180deg);
+    }
+
+    to {
+        transform: rotateY(0deg);
+    }
+}
+
+@keyframes spin-to-hidden {
+    from {
+        background-color: white;
+    }
+
+    to {
+        background-color: transparent;
+        border: 0px white;
+    }
+}
+
+.card {
+    width: 80px;
+    height: 100px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none !important;
+    border-radius: 8px;
+}
+
+.card:focus, .card:active {
+    outline: none !important;
+    border: 0px solid;
+}
+
+.card-closed {
+    border: 4px solid white;
+    border-radius: 8px;
+    background-color: #458ca9;
+    pointer-events: auto;
+}
+
+.card-green {
+    color: green;
+    background-color: white;
+    animation: spin-to-green 0.5s linear;
+    border: 0px solid;
+}
+
+.card-red {
+    color: red;
+    background-color: white;
+    animation: spin-to-red 0.5s linear;
+    border: 0px solid;
+}
+
+.card-hidden {
+    background-color: transparent;
+    border: 0px white;
+    animation: spin-to-hidden 0.5s ease-out;
+}
