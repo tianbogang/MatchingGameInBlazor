@@ -1,0 +1,28 @@
+﻿<link href="css/Card.css" rel="stylesheet" />
+
+@switch (card.State)
+{
+    case CardState.Closed:
+        <div class="card card-closed" @onclick="() => OnClickCallback(card)"></div> 
+        break;
+
+    case CardState.OpenGreen:
+        <div class="card card-green">@card.Point</div> 
+        break;
+
+    case CardState.OpenRed:
+        <div class="card card-red">@card.Point</div> 
+        break;
+
+    case CardState.Hidden:
+        <div class="card card-hidden"></div>
+        break;
+}
+
+@code { 
+    [Parameter]
+    public Card card { get; set; }
+
+    [Parameter]
+    public Action<Card> OnClickCallback { get; set; }
+}
